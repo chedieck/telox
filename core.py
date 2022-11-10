@@ -6,6 +6,7 @@ import hashlib
 
 
 HEADERS = {'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36'}
+MAX_DESCIPTION_SIZE = 600
 
 
 class Ad():
@@ -49,10 +50,10 @@ class Ad():
         self.url = raw_ad_list['url']
 
         # to be set later
-        self.cep = None
-        self.municipio = None
-        self.bairro = None
-        self.description = None
+        self.cep = ''
+        self.municipio = ''
+        self.bairro = ''
+        self.description = ''
 
     def update_detailed_data(self):
         """Update the Ad's location & description data, which is not present in the `raw_ad_list`
@@ -92,11 +93,16 @@ class Ad():
         if self.old_price:
             price_segment = price_segment.rstrip('\n') + f" (de {self.old_price})\n"
 
+        description = self.description
+        if len(description) > MAX_DESCIPTION_SIZE:
+            description = self.description[:MAX_DESCIPTION_SIZE - 3] + '...'
+
+
         return (
             f"<b>{self.title:^45}</b>\n\n"
             + f"Lugar: <i>{self.municipio} - {self.bairro}</i>\n"
             + price_segment
-            + f"Descrição: <i>{self.description}</i>\n\n"
+            + f"Descrição: <i>{description}</i>\n\n"
             + f'<a href="{self.url}">URL</a>'
         )
 

@@ -6,6 +6,7 @@ from telegram import InputMediaPhoto, ParseMode
 
 WATCHER_LIST = [Watcher(url) for url in URL_SEARCH_LIST]
 DELAY = 30
+TELEGRAM_MAX_CAPTION_CHAR_SIZE = 1024
 
 
 def _pre_parse_html(text: str):
