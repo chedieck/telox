@@ -43,7 +43,7 @@ def start(update, context):
         update.message.reply_text('010010110101010101010110101000101010111010101011011101010110111100010110')
 
     else:
-        update.message.reply_text('Ativando...')
+        update.message.reply_text('Ativado.')
         print("Ativado.")
         [w.update() for w in WATCHER_LIST]
         context.job_queue.run_repeating(watch_job, DELAY, 0)
