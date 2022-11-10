@@ -1,84 +1,11 @@
 from bs4 import BeautifulSoup
+from typing import List
 import requests
 import json
 import hashlib
 
 
 HEADERS = {'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36'}
-
-
-def parse_price(price: str | None) -> str | None:
-    if price is None:
-        return price
-    return price.split(' ')[-1]
-
-
-class Watcher():
-    """
-    Attributes
-    ----------
-    url: str
-            URL to be watched.
-    ad_list: List[Ad] | None
-            List of ads present in the URL.
-    last_ad: Ad | None
-            Last ad posted on the URL (first ad you would see on the list, when entering the URL)
-    seen: Set[str] | None
-            The hash of the Ads that were already seen.
-    """
-    def __init__(self, url: str):
-        """
-        Parameters
-        ----------
-
-        url
-            URL to be watched.
-        """
-        self.url = url
-        self.ad_list = None
-        self.last_ad = None
-
-        self.seen = set()
-
-    def update(self) -> bool:
-        """Updates `self.ad_list` and `self.last_ad`.
-
-        Returns
-        -------
-        True if `self.last_ad` changed, False if not.
-        """
-        page = requests.get(self.url, headers=HEADERS)
-        soup = BeautifulSoup(page.content, 'html.parser')
-        scripts = soup.findAll('script')
-
-        data_json = json.loads(next((s for s in scripts if s.has_attr('data-json')), None)['data-json'])
-        raw_ad_list = data_json['listingProps']['adList']
-        self.ad_list = [Ad(raw_ad) for raw_ad in raw_ad_list if 'subject' in raw_ad.keys()]
-
-        # see if changed:
-        prev_ad = self.last_ad
-        last_ad = self.ad_list[0]
-        if last_ad != prev_ad:
-            self.last_ad = last_ad
-            # avoid sending the same Ad again if the seller changes the price back and forth
-            if last_ad.hash not in self.seen:
-                last_ad.update_detailed_data()
-                return True
-        return False
-
-    def get_last_ad(self, commit=True):
-        """Get last ad.
-
-        Parameters
-        ----------
-
-        commit
-            If this ad should now be added to `seen` list.
-        """
-
-        if commit:
-            self.seen.add(self.last_ad.hash)
-        return self.last_ad
 
 
 class Ad():
@@ -179,3 +106,73 @@ class Ad():
         """
         concatenated_info = f'{self.url}{self.price}'
         return hashlib.md5(concatenated_info.encode('utf-8')).hexdigest()
+
+
+def parse_price(price: str | None) -> str | None:
+    if price is None:
+        return price
+    return price.split(' ')[-1]
+
+
+class Watcher():
+    """
+    Attributes
+    ----------
+    url: str
+            URL to be watched.
+    ad_list: List[Ad] | None
+            List of ads present in the URL.
+    seen: Set[str] | None
+            The hash of the Ads that were already seen.
+    """
+    def __init__(self, url: str):
+        """
+        Parameters
+        ----------
+
+        url
+            URL to be watched.
+        """
+        self.url = url
+        self.ad_list = None
+
+        self.seen = set()
+
+
+    @classmethod
+    def get_ad_list_hash(cls, ad_list: List[Ad] | None):
+        if ad_list == None:
+            return ''
+        concatenated_info = ''.join([ad.hash for ad in ad_list])
+        return hashlib.md5(concatenated_info.encode('utf-8')).hexdigest()
+
+    @property
+    def hash(self) -> str:
+        """Hash of all the `ad_list` hashes.
+        """
+        return Watcher.get_ad_list_hash(self.ad_list)
+
+    def update(self) -> List[Ad] | None:
+        """Updates `self.ad_list` and `self.last_ad`.
+
+        Returns
+        -------
+
+        `None` if nothing changed, the list of new Ads if there are some.
+        """
+        page = requests.get(self.url, headers=HEADERS)
+        soup = BeautifulSoup(page.content, 'html.parser')
+        scripts = soup.findAll('script')
+
+        data_json = json.loads(next((s for s in scripts if s.has_attr('data-json')), None)['data-json'])
+        raw_ad_list = data_json['listingProps']['adList']
+        new_ad_list = [Ad(raw_ad) for raw_ad in raw_ad_list if 'subject' in raw_ad.keys()]
+        if Watcher.get_ad_list_hash(new_ad_list) != self.hash:
+            ret = []
+            for new_ad in new_ad_list:
+                if new_ad.hash not in self.seen:
+                    new_ad.update_detailed_data()
+                    self.seen.add(new_ad.hash)
+                    ret.append(new_ad)
+            self.ad_list = new_ad_list
+            return ret

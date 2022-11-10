@@ -24,15 +24,12 @@ def make_album(url_arr, caption):
 
 
 def print_last_if_changed(context, w):
-    changed = w.update()
-    if changed:
-        last_ad = w.get_last_ad()
-
-        caption = _pre_parse_html(str(w.get_last_ad()))
-        for chat_id in CHAT_ID_LIST:
-            pic_arr = make_album(last_ad.image_url_list, caption)
-            context.bot.send_media_group(chat_id, media=pic_arr)
-
+    if (new_ads:= w.update()):
+        for new_ad in new_ads:
+            caption = _pre_parse_html(str(new_ad))
+            for chat_id in CHAT_ID_LIST:
+                pic_arr = make_album(new_ad.image_url_list, caption)
+                context.bot.send_media_group(chat_id, media=pic_arr)
 
 
 def watch_job(context):
