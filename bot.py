@@ -28,8 +28,8 @@ def print_last_if_changed(context, w):
     if (new_ads:= w.update()):
         for new_ad in new_ads:
             caption = _pre_parse_html(str(new_ad))
+            pic_arr = make_album(new_ad.image_url_list, caption)
             for chat_id in CHAT_ID_LIST:
-                pic_arr = make_album(new_ad.image_url_list, caption)
                 context.bot.send_media_group(chat_id, media=pic_arr)
 
 
