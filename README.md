@@ -15,4 +15,4 @@ Uso
 8. Execute novamente os passos 4 & 5.
 
 
-Dica: A informação sobre a ordem na qual devem aparecer os anúncios (mais relevantes, mais novos, etc) vai inclusa na URL.
+**Dica: A informação sobre a ordem na qual devem aparecer os anúncios (mais relevantes, mais novos, etc) vai inclusa na URL.**
