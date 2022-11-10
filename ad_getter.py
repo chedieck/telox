@@ -23,8 +23,8 @@ class Watcher():
             List of ads present in the URL.
     last_ad: Ad | None
             Last ad posted on the URL (first ad you would see on the list, when entering the URL)
-    seen: List[str] | None
-            Ads that were already seen.
+    seen: Set[str] | None
+            The hash of the Ads that were already seen.
     """
     def __init__(self, url: str):
         """
@@ -38,7 +38,7 @@ class Watcher():
         self.ad_list = None
         self.last_ad = None
 
-        self.seen = []
+        self.seen = set()
 
     def update(self) -> bool:
         """Updates `self.ad_list` and `self.last_ad`.
@@ -60,6 +60,7 @@ class Watcher():
         last_ad = self.ad_list[0]
         if last_ad != prev_ad:
             self.last_ad = last_ad
+            # avoid sending the same Ad again if the seller changes the price back and forth
             if last_ad.hash not in self.seen:
                 last_ad.update_detailed_data()
                 return True
@@ -76,7 +77,7 @@ class Watcher():
         """
 
         if commit:
-            self.seen.append(self.last_ad.hash)
+            self.seen.add(self.last_ad.hash)
         return self.last_ad
 
 
