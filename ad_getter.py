@@ -102,7 +102,11 @@ class Ad():
         soup = BeautifulSoup(page.content, 'html.parser')
         scripts = soup.findAll('script')
 
-        data_json = json.loads(next((s for s in scripts if s.has_attr('data-json')), None)['data-json'])
+        try:
+            data_json = json.loads(next((s for s in scripts if s.has_attr('data-json')), None)['data-json'])
+        except TypeError:
+            print(f'Type error for ad of URL {self.url}')
+
         location_properties = data_json['ad']['locationProperties']
 
         for prop in location_properties:
