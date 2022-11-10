@@ -1,5 +1,5 @@
 import ad_getter as ag
-from variables import TOKEN, CHAT_ID_LIST, URL_SEARCH_LIST
+from config import TOKEN, CHAT_ID_LIST, URL_SEARCH_LIST
 from telegram.ext import Updater, CommandHandler
 from telegram import InputMediaPhoto, ParseMode
 
