@@ -1,10 +1,10 @@
-import ad_getter as ag
+from core import Watcher
 from config import TOKEN, CHAT_ID_LIST, URL_SEARCH_LIST
 from telegram.ext import Updater, CommandHandler
 from telegram import InputMediaPhoto, ParseMode
 
 
-watcher_list = [ag.Watcher(url) for url in URL_SEARCH_LIST]
+watcher_list = [Watcher(url) for url in URL_SEARCH_LIST]
 DELAY = 30
 
 
