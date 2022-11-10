@@ -4,7 +4,7 @@ from telegram.ext import Updater, CommandHandler
 from telegram import InputMediaPhoto, ParseMode
 
 
-watcher_list = [Watcher(url) for url in URL_SEARCH_LIST]
+WATCHER_LIST = [Watcher(url) for url in URL_SEARCH_LIST]
 DELAY = 30
 
 
@@ -33,7 +33,7 @@ def print_last_if_changed(context, w):
 
 
 def watch_job(context):
-    for w in watcher_list:
+    for w in WATCHER_LIST:
         print_last_if_changed(context, w)
 
 
@@ -45,6 +45,7 @@ def start(update, context):
     else:
         update.message.reply_text('Ativando...')
         print("Ativado.")
+        [w.update() for w in WATCHER_LIST]
         context.job_queue.run_repeating(watch_job, DELAY, 0)
 
 
