@@ -52,8 +52,8 @@ class Watcher():
         scripts = soup.findAll('script')
 
         data_json = json.loads(next((s for s in scripts if s.has_attr('data-json')), None)['data-json'])
-        ad_list = data_json['listingProps']['adList']
-        self.ad_list = [Ad(ad) for ad in ad_list if 'subject' in ad.keys()]
+        raw_ad_list = data_json['listingProps']['adList']
+        self.ad_list = [Ad(raw_ad) for raw_ad in raw_ad_list if 'subject' in raw_ad.keys()]
 
         # see if changed:
         prev_ad = self.last_ad
@@ -61,7 +61,7 @@ class Watcher():
         if last_ad != prev_ad:
             self.last_ad = last_ad
             if last_ad.hash not in self.seen:
-                last_ad.update_specific_info()
+                last_ad.update_detailed_data()
                 return True
         return False
 
@@ -81,13 +81,44 @@ class Watcher():
 
 
 class Ad():
-    def __init__(self, adList):
-        self.name = adList['subject']
-        self.price = parse_price(adList['price'])
-        self.old_price = parse_price(adList['oldPrice'])
-        self.images = adList['images']
-        self.location = adList['location']
-        self.url = adList['url']
+    """
+    Attributes
+    ----------
+    title: str
+            Ad's title.
+    price: str
+            Ad's price.
+    old_price: str | None
+            Old price (if the seller has reduced the price recently, this info is avaiable).
+    image_url_list: Ad | None
+            List with all the Ad's images URLs.
+    raw_location: List[str] | None
+            Ad's raw location info.
+    url: str
+            Ad's URL.
+    cep: str
+            Ad's CEP.
+    municipio: str
+            The name of the Ad's município.
+    bairro: str
+            The name of the Ad's bairro.
+    description: str
+            Ad description.
+    """
+    def __init__(self, raw_ad_list):
+        """
+        Parameters
+        ----------
+
+        raw_ad_list: List
+            Raw info of ad list scrapped from OLX.
+        """
+        self.title = raw_ad_list['subject']
+        self.price = parse_price(raw_ad_list['price'])
+        self.old_price = parse_price(raw_ad_list['oldPrice'])
+        self.image_url_list = [i['original'] for i in raw_ad_list['images']]
+        self.raw_location = raw_ad_list['location']
+        self.url = raw_ad_list['url']
 
         # to be set later
         self.cep = None
@@ -95,7 +126,10 @@ class Ad():
         self.bairro = None
         self.description = None
 
-    def update_specific_info(self):
+    def update_detailed_data(self):
+        """Update the Ad's location & description data, which is not present in the `raw_ad_list`
+        constructor parameter.
+        """
         if not self.url:
             return
         page = requests.get(self.url, headers=HEADERS)
@@ -106,6 +140,7 @@ class Ad():
             data_json = json.loads(next((s for s in scripts if s.has_attr('data-json')), None)['data-json'])
         except TypeError:
             print(f'Type error for ad of URL {self.url}')
+            return
 
         location_properties = data_json['ad']['locationProperties']
 
@@ -120,6 +155,8 @@ class Ad():
         self.description = data_json['ad']['description']
 
     def __eq__(self, other):
+        """Two ads are equal if their hash property is the same.
+        """
         return self.hash == other.hash if other is not None else False
 
     def __repr__(self):
@@ -128,7 +165,7 @@ class Ad():
             price_segment = price_segment.rstrip('\n') + f" (de {self.old_price})\n"
 
         return (
-            f"<b>{self.name:^45}</b>\n\n"
+            f"<b>{self.title:^45}</b>\n\n"
             + f"Lugar: <i>{self.municipio} - {self.bairro}</i>\n"
             + price_segment
             + f"Descrição: <i>{self.description}</i>\n\n"
@@ -137,5 +174,7 @@ class Ad():
 
     @property
     def hash(self):
+        """Hash of the Ad's URL + the Ad's price.
+        """
         concatenated_info = f'{self.url}{self.price}'
         return hashlib.md5(concatenated_info.encode('utf-8')).hexdigest()
