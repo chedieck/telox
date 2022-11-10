@@ -30,10 +30,7 @@ def print_last_if_changed(context, w):
 
         caption = _pre_parse_html(str(w.get_last_ad()))
         for chat_id in CHAT_ID_LIST:
-            pics_urls = [x['original'] for x in last_ad.images]
-            # get urls and send media album
-            url_arr = pics_urls
-            pic_arr = make_album(url_arr, caption)
+            pic_arr = make_album(last_ad.image_url_list, caption)
             context.bot.send_media_group(chat_id, media=pic_arr)
 
 
