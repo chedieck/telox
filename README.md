@@ -1,4 +1,4 @@
-# Telox
+# telox
 <p align="center" >
 <img width="200" height="200" src="https://user-images.githubusercontent.com/21281174/201219494-2f6ab07c-8f7b-407b-87a8-a871a63a6263.png"> 
 <p>
