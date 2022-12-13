@@ -38,7 +38,8 @@ def watch_job(context):
 
 
 def start(update, context):
-    if (user_id := update.message['chat']['id']) not in CHAT_ID_LIST:
+    user_id = update.message['chat']['id']
+    if user_id not in CHAT_ID_LIST:
         print(f'User of id {user_id} tried starting the bot.')
         update.message.reply_text('010010110101010101010110101000101010111010101011011101010110111100010110')
 
@@ -46,7 +47,12 @@ def start(update, context):
         update.message.reply_text('Ativado.')
         print("Ativado.")
         [w.update() for w in WATCHER_LIST]
-        context.job_queue.run_repeating(watch_job, DELAY, 0)
+        context.job_queue.run_repeating(
+            watch_job,
+            DELAY,
+            0,
+            name=f'{user_id}-watcher'
+        )
 
 
 if __name__ == '__main__':
