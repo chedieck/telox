@@ -36,6 +36,12 @@ def watch_job(context):
     for w in WATCHER_LIST:
         print_last_if_changed(context, w)
 
+def stop(update, context):
+    user_id = update.message['chat']['id']
+    current_jobs = context.job_queue.get_jobs_by_name(f'{user_id}-watcher')
+    if current_jobs:
+        for job in current_jobs:
+            job.schedule_removal()
 
 def start(update, context):
     user_id = update.message['chat']['id']
@@ -59,5 +65,6 @@ if __name__ == '__main__':
     updater = Updater(token=TOKEN)
     dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler('start', start))
+    dispatcher.add_handler(CommandHandler('stop', stop))
     updater.start_polling()
     updater.idle()
