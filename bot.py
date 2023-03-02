@@ -1,7 +1,8 @@
 from core import Watcher
 from config import TOKEN, CHAT_ID_LIST, URL_SEARCH_LIST
-from telegram.ext import Updater, CommandHandler
-from telegram import InputMediaPhoto, ParseMode
+from telegram.ext import ApplicationBuilder, CommandHandler
+from telegram import InputMediaPhoto
+from telegram.constants import ParseMode
 
 
 WATCHER_LIST = [Watcher(url) for url in URL_SEARCH_LIST]
@@ -23,37 +24,37 @@ def make_album(url_arr, caption):
     return ret
 
 
-def print_last_if_changed(context, w):
+async def print_last_if_changed(context, w):
     if (new_ads:= w.update()):
         for new_ad in new_ads:
             caption = _pre_parse_html(str(new_ad))
             pic_arr = make_album(new_ad.image_url_list, caption)
             for chat_id in CHAT_ID_LIST:
-                context.bot.send_media_group(chat_id, media=pic_arr)
+                await context.bot.send_media_group(chat_id, media=pic_arr)
 
 
-def watch_job(context):
+async def watch_job(context):
     for w in WATCHER_LIST:
-        print_last_if_changed(context, w)
+        await print_last_if_changed(context, w)
 
-def stop(update, context):
+async def stop(update, context):
     user_id = update.message['chat']['id']
-    current_jobs = context.job_queue.get_jobs_by_name(f'{user_id}-watcher')
+    current_jobs = await context.job_queue.get_jobs_by_name(f'{user_id}-watcher')
     if current_jobs:
         for job in current_jobs:
             job.schedule_removal()
 
-def start(update, context):
+async def start(update, context):
     user_id = update.message['chat']['id']
     if user_id not in CHAT_ID_LIST:
         print(f'User of id {user_id} tried starting the bot.')
-        update.message.reply_text('010010110101010101010110101000101010111010101011011101010110111100010110')
+        await update.message.reply_text('010010110101010101010110101000101010111010101011011101010110111100010110')
 
     else:
-        update.message.reply_text('Ativado.')
+        await update.message.reply_text('Ativado.')
         print("Ativado.")
         [w.update() for w in WATCHER_LIST]
-        context.job_queue.run_repeating(
+        await context.job_queue.run_repeating(
             watch_job,
             DELAY,
             0,
@@ -62,9 +63,9 @@ def start(update, context):
 
 
 if __name__ == '__main__':
-    updater = Updater(token=TOKEN)
-    dispatcher = updater.dispatcher
-    dispatcher.add_handler(CommandHandler('start', start))
-    dispatcher.add_handler(CommandHandler('stop', stop))
-    updater.start_polling()
-    updater.idle()
+    application = ApplicationBuilder().token(TOKEN).build()
+    start_handler = CommandHandler('start', start)
+    stop_handler = CommandHandler('stop', stop)
+    application.add_handler(start_handler)
+    application.add_handler(stop_handler)
+    application.run_polling()
