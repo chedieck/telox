@@ -18,4 +18,4 @@ Uso
 8. Execute novamente os passos 4 & 5.
 
 
-**Dica: A informação sobre a ordem na qual devem aparecer os anúncios (mais relevantes, mais novos, etc) vai inclusa na URL. Para que sejam enviados os anúncios mais recentes assim que aparecerem, é necessário ordenar dessa forma (mais recentes primeiros), antes de copiar as URLs para o arquivo** `config.py`.
+**ATENÇÃO: A informação sobre a ordem na qual devem aparecer os anúncios (mais relevantes, mais novos, etc) vai inclusa na URL. Para que sejam enviados os anúncios mais recentes assim que aparecerem, é necessário ordenar dessa forma (mais recentes primeiros), antes de copiar as URLs para o arquivo** `config.py`. **A terminação** `&sf=1` **na URL indica esse ordenamento.**
