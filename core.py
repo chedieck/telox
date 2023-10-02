@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+from bs4.element import NavigableString, Tag
 from typing import List
 import requests
 import json
@@ -162,6 +163,22 @@ class Watcher():
         """
         return Watcher.get_ad_list_hash(self.ad_list)
 
+    @classmethod
+    def get_ad_list(cls, soup: BeautifulSoup) -> List:
+        data = soup.find('script', {'id': '__NEXT_DATA__'})
+        if data:
+            data_string: str
+            if type(data) == Tag:
+                data_string = data.string or ''
+            elif type(data) == NavigableString:
+                data_string = str(data)
+            else:
+                print('Data is actually', type(data))
+                return []
+            data_json = json.loads(data_string)
+            return data_json['props']['pageProps']['ads']
+        return []
+
     def update(self) -> List[Ad] | None:
         """Updates `self.ad_list` and `self.last_ad`.
 
@@ -172,14 +189,8 @@ class Watcher():
         """
         page = requests.get(self.url, headers=HEADERS)
         soup = BeautifulSoup(page.content, 'html.parser')
-        scripts = soup.findAll('script')
-        next_data = next((s for s in scripts if s.has_attr('data-json')), None)
-        if next_data == None:
-            print("No data-json.")
-            return
-        data_json = json.loads(next_data['data-json'])
-        raw_ad_list = data_json['listingProps']['adList']
-        new_ad_list = [Ad(raw_ad) for raw_ad in raw_ad_list if 'subject' in raw_ad.keys()]
+        ad_list = Watcher.get_ad_list(soup)
+        new_ad_list = [Ad(raw_ad) for raw_ad in ad_list if 'subject' in raw_ad.keys()]
         if Watcher.get_ad_list_hash(new_ad_list) != self.hash:
             ret = []
             for new_ad in new_ad_list:
