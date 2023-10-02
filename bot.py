@@ -54,7 +54,7 @@ async def start(update, context):
         await update.message.reply_text('Ativado.')
         print("Ativado.")
         [w.update() for w in WATCHER_LIST]
-        await context.job_queue.run_repeating(
+        context.job_queue.run_repeating(
             watch_job,
             DELAY,
             0,
