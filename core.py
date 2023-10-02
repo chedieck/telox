@@ -66,7 +66,11 @@ class Ad():
         scripts = soup.findAll('script')
 
         try:
-            data_json = json.loads(next((s for s in scripts if s.has_attr('data-json')), None)['data-json'])
+            next_data = next((s for s in scripts if s.has_attr('data-json')), None)
+            if next_data == None:
+                print("No data-json.")
+                return
+            data_json = json.loads(next_data['data-json'])
         except TypeError:
             print(f'Type error for ad of URL {self.url}')
             return
@@ -169,8 +173,11 @@ class Watcher():
         page = requests.get(self.url, headers=HEADERS)
         soup = BeautifulSoup(page.content, 'html.parser')
         scripts = soup.findAll('script')
-
-        data_json = json.loads(next((s for s in scripts if s.has_attr('data-json')), None)['data-json'])
+        next_data = next((s for s in scripts if s.has_attr('data-json')), None)
+        if next_data == None:
+            print("No data-json.")
+            return
+        data_json = json.loads(next_data['data-json'])
         raw_ad_list = data_json['listingProps']['adList']
         new_ad_list = [Ad(raw_ad) for raw_ad in raw_ad_list if 'subject' in raw_ad.keys()]
         if Watcher.get_ad_list_hash(new_ad_list) != self.hash:
