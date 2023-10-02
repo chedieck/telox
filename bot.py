@@ -1,12 +1,18 @@
 from core import Watcher
-from config import TOKEN, CHAT_ID_LIST, URL_SEARCH_LIST
+from config import TOKEN, CHAT_TO_URL_DICT
 from telegram.ext import ApplicationBuilder, CommandHandler
 from telegram import InputMediaPhoto
 from telegram.constants import ParseMode
 
 
-WATCHER_LIST = [Watcher(url) for url in URL_SEARCH_LIST]
+URL_SET = set([
+    url for v in CHAT_TO_URL_DICT.values() for url in v
+])
+WATCHER_LIST = [
+    Watcher(url) for url in URL_SET
+]
 DELAY = 30
+CHAT_ID_LIST = CHAT_TO_URL_DICT.keys()
 
 
 def _pre_parse_html(text: str):
