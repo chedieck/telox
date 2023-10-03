@@ -1,3 +1,4 @@
+from typing import List
 from core import Watcher
 from config import TOKEN, CHAT_TO_URL_DICT
 from telegram.ext import ApplicationBuilder, CommandHandler
@@ -29,6 +30,9 @@ def make_album(url_arr, caption):
         ret.append(pic)
     return ret
 
+async def send_album(context, chat_id: int, pic_arr: List):
+    for i in range(0, len(pic_arr), 10):
+        await context.bot.send_media_group(chat_id, media=pic_arr[i: i+10])
 
 async def print_last_if_changed(context, w):
     if (new_ads:= w.update()):
@@ -36,7 +40,7 @@ async def print_last_if_changed(context, w):
             caption = _pre_parse_html(str(new_ad))
             pic_arr = make_album(new_ad.image_url_list, caption)
             for chat_id in CHAT_ID_LIST:
-                await context.bot.send_media_group(chat_id, media=pic_arr)
+                await send_album(context, chat_id, pic_arr)
 
 
 async def watch_job(context):
