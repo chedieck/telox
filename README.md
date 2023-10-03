@@ -14,7 +14,7 @@ Uso
 4. `python bot.py`
 5. Mande a mensagem `/start` para o bot. 
 6. No console deverá aparecer `User of id <SEU_ID> tried starting the bot.`
-7. Coloque `<SEU_ID>` no arquivo `config.py`, na variável `CHAT_TO_URL_DICT`, junto com as URLs de desejo.
+7. Coloque `<SEU_ID>` no arquivo `config.py`, na variável `URL_TO_CHAT_DICT`, junto com as URLs de desejo.
 8. Execute novamente os passos 4 & 5.
 
 
