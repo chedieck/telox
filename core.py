@@ -1,13 +1,30 @@
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, Tag
 from typing import List
-import requests
+import subprocess
 import json
 import hashlib
 
 
-HEADERS = {'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36'}
+CURL_ARGS = str("""--compressed"""
+                """ -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0'"""
+                """ -H 'Accept: */*'"""
+                """ -H 'Accept-Language: en-US,en;q=0.5'"""
+                """ -H 'Accept-Encoding: gzip, deflate, br'"""
+                """ -H 'x-nextjs-data: 1'"""
+                """ -H 'Connection: keep-alive'"""
+                """ -H 'Sec-Fetch-Dest: empty'"""
+                """ -H 'Sec-Fetch-Mode: cors'"""
+                """ -H 'Sec-Fetch-Site: same-origin'""")
+
+
 MAX_DESCIPTION_SIZE = 600
+
+def curl_request(url):
+    curl_command = f'curl \'{url}\' {CURL_ARGS}'
+    process = subprocess.Popen(curl_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = process.communicate()
+    return out
 
 
 class Ad():
@@ -62,8 +79,8 @@ class Ad():
         """
         if not self.url:
             return
-        page = requests.get(self.url, headers=HEADERS)
-        soup = BeautifulSoup(page.content, 'html.parser')
+        page_content = curl_request(self.url)
+        soup = BeautifulSoup(page_content, 'html.parser')
         scripts = soup.findAll('script')
 
         try:
@@ -187,8 +204,8 @@ class Watcher():
 
         `None` if nothing changed, the list of new Ads if there are some.
         """
-        page = requests.get(self.url, headers=HEADERS)
-        soup = BeautifulSoup(page.content, 'html.parser')
+        page_content = curl_request(self.url)
+        soup = BeautifulSoup(page_content, 'html.parser')
         ad_list = Watcher.get_ad_list(soup)
         new_ad_list = [Ad(raw_ad) for raw_ad in ad_list if 'subject' in raw_ad.keys()]
         if Watcher.get_ad_list_hash(new_ad_list) != self.hash:
