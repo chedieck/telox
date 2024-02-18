@@ -1,6 +1,6 @@
 from typing import List
 from core import Watcher
-from config import TOKEN, URL_TO_CHAT_DICT
+from config import TOKEN, URL_TO_CHAT_DICT, SHOW_NEW_ON_START, SCAN_DELAY
 from telegram.ext import ApplicationBuilder, CommandHandler
 from telegram import InputMediaPhoto
 from telegram.constants import ParseMode
@@ -13,7 +13,6 @@ URL_LIST = URL_TO_CHAT_DICT.keys()
 WATCHER_LIST = [
     Watcher(url) for url in URL_LIST
 ]
-DELAY = 30
 
 
 def _pre_parse_html(text: str):
@@ -63,10 +62,11 @@ async def start(update, context):
     else:
         await update.message.reply_text('Ativado.')
         print("Ativado.")
-        [w.update() for w in WATCHER_LIST]
+        if not SHOW_NEW_ON_START:
+            [w.update() for w in WATCHER_LIST]
         context.job_queue.run_repeating(
             watch_job,
-            DELAY,
+            SCAN_DELAY,
             0,
             name=f'{user_id}-watcher'
         )

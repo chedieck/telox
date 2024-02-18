@@ -1,4 +1,6 @@
 TOKEN = '1234567890:s3crET7El3Gr4mBoT0k3Nd0N@tsh4r3zzzz'
+SHOW_NEW_ON_START = False
+SCAN_DELAY=45
 
 SURF_SKATE_URL = 'https://pr.olx.com.br/regiao-de-curitiba-e-paranagua/esportes-e-ginastica?q=surf%20skate'
 AMPLIFICADOR_URL = 'https://www.olx.com.br/instrumentos-musicais/amplificadores-e-microfones/estado-am/regiao-de-manaus'
