@@ -2,7 +2,7 @@ from typing import List
 from core import Watcher
 from config import TOKEN, URL_TO_CHAT_DICT, SHOW_NEW_ON_START, SCAN_DELAY
 from telegram.ext import ApplicationBuilder, CommandHandler
-from telegram import InputMediaPhoto
+from telegram import InputMediaPhoto, Update
 from telegram.constants import ParseMode
 
 
@@ -53,7 +53,7 @@ async def stop(update, context):
         for job in current_jobs:
             job.schedule_removal()
 
-async def start(update, context):
+async def start(update: Update, context):
     user_id = update.message['chat']['id']
     if user_id not in CHAT_ID_SET:
         print(f'User of id {user_id} tried starting the bot.')
@@ -61,7 +61,8 @@ async def start(update, context):
 
     else:
         await update.message.reply_text('Ativado.')
-        print("Ativado.")
+        chat = update.message.chat
+        print(f"Ativado para usuário @{chat.username} ({chat.first_name} {chat.last_name})")
         if not SHOW_NEW_ON_START:
             [w.update() for w in WATCHER_LIST]
         context.job_queue.run_repeating(
