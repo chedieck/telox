@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 from bs4.element import NavigableString, Tag
 from typing import List, Optional
 from concurrent.futures import ThreadPoolExecutor
-from config import LOG_LEVEL
+from config import LOG_LEVEL, EXTRA_HEADERS
 import subprocess
 import json
 import asyncio
@@ -12,6 +12,8 @@ from pathlib import Path
 import json
 
 
+EXTRA_HEADERS = EXTRA_HEADERS if EXTRA_HEADERS else []
+
 
 CURL_ARGS = str("""--compressed"""
                 """ -c cookies.txt"""
@@ -19,11 +21,11 @@ CURL_ARGS = str("""--compressed"""
                 """ -H 'Accept: */*'"""
                 """ -H 'Accept-Language: en-US,en;q=0.5'"""
                 """ -H 'Accept-Encoding: gzip, deflate, br'"""
-                """ -H 'x-nextjs-data: 1'"""
                 """ -H 'Connection: keep-alive'"""
                 """ -H 'Sec-Fetch-Dest: empty'"""
                 """ -H 'Sec-Fetch-Mode: cors'"""
-                """ -H 'Sec-Fetch-Site: same-origin'""")
+                """ -H 'Sec-Fetch-Site: same-origin'"""
+                ) + "".join(EXTRA_HEADERS)
 
 
 MAX_DESCIPTION_SIZE = 600
