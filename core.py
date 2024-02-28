@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 from bs4.element import NavigableString, Tag
 from typing import List, Optional
 from concurrent.futures import ThreadPoolExecutor
+from config import LOG_LEVEL
 import subprocess
 import json
 import asyncio
