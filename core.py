@@ -51,6 +51,8 @@ def curl_request(url):
     curl_command = f'curl \'{url}\' {CURL_ARGS}'
     process = subprocess.Popen(curl_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = process.communicate()
+    print('curl out', out)
+    print('curl err', err)
     return out
 
 
