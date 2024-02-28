@@ -15,7 +15,7 @@ import json
 
 CURL_ARGS = str("""--compressed"""
                 """ -c cookies.txt"""
-                """ -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0'"""
+                """ -H 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.3'"""
                 """ -H 'Accept: */*'"""
                 """ -H 'Accept-Language: en-US,en;q=0.5'"""
                 """ -H 'Accept-Encoding: gzip, deflate, br'"""
