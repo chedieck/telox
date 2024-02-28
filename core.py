@@ -351,6 +351,7 @@ class Watcher():
                 scan_logger.error(f'Data is actually {type(data)}')
                 return []
             data_json = json.loads(data_string)
+            scan_logger.debug(f'Data JSON on get_ad_list: {data_json}')
             return data_json['props']['pageProps']['ads']
         return []
 
@@ -372,6 +373,7 @@ class Watcher():
         """
         page_content = curl_request(self.url)
         soup = BeautifulSoup(page_content, 'html.parser')
+        scan_logger.debug('Sopa da lista:', soup.get_text())
         ad_list = Watcher.get_ad_list(soup)
         new_ad_list = [Ad(raw_ad) for raw_ad in ad_list if 'subject' in raw_ad.keys()]
         new_ad_list = new_ad_list[:NEW_ADS_LIMIT]
