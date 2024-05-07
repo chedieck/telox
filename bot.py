@@ -102,7 +102,8 @@ async def start(update: Update, context: CallbackContext):
         await update.message.reply_text('010010110101010101010110101000101010111010101011011101010110111100010110')
 
     else:
-        await update.message.reply_text(f'<b>{first_name} {last_name}</b>\n@{username}\n<i>#{user_id}</i>\n\nAtivado.', parse_mode=ParseMode.HTML)
+        subscribed_urls_string = '\n'.join([u for u in URL_LIST if user_id in URL_TO_CHAT_DICT[u]])
+        await update.message.reply_text(f'<b>{first_name} {last_name}</b>\n@{username}\n<i>#{user_id}</i>\nURLS:\n{subscribed_urls_string}\n---\nAtivado.', parse_mode=ParseMode.HTML)
         chat_logger.info(f"Ativado para usuário ({first_name} {last_name}) @{username} #{user_id}")
         if not SHOW_NEW_ON_START:
             [await w.update() for w in WATCHER_LIST]
